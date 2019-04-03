@@ -23,4 +23,4 @@ w1 = np.random.rand()
 w2 = np.random.rand()
 b = np.random.rand()
 
-NN(3, 1.5, w1, w2, b)
+NN(2, 1, w1, w2, b)
