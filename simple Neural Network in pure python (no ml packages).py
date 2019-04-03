@@ -13,3 +13,8 @@ import numpy as np
 def NN(m1, m2, w1, w2, b):
     input_weighted_sum = m1 + m2 * w2 + b
     return sigmoid(input_weighted_sum)
+
+# Activation function
+def sigmoid(x):
+    return 1/(1 + np.exp(-x))
+    
