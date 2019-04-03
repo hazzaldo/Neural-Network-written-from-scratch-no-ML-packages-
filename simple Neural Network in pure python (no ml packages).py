@@ -18,3 +18,9 @@ def NN(m1, m2, w1, w2, b):
 def sigmoid(x):
     return 1/(1 + np.exp(-x))
     
+# create random numbers for our initial weights (connections) and bias to begin with. 'rand' method creates small random numbers. 
+w1 = np.random.rand()
+w2 = np.random.rand()
+b = np.random.rand()
+
+NN(3, 1.5, w1, w2, b)
