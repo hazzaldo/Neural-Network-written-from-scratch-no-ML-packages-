@@ -12,6 +12,25 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
+
+
+# -- Activation functions --: 
+def sigmoid(x):
+    return 1/(1 + np.exp(-x))
+
+# derivative of sigmoid
+def sigmoid_derivation(x): 
+    return sigmoid(x) * (1-sigmoid(x))
+
+def relu(x):
+    return np.maximum(0.0, x)
+
+def relu_derivation(x):
+    if x <= 0:
+        return 0
+    else:
+        return 1
+
 # We'll label red flowers as 1 and blue flowers as 0
 
 """
