@@ -12,24 +12,35 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
-
-
-# -- Activation functions --: 
-def sigmoid(x):
-    return 1/(1 + np.exp(-x))
-
-# derivative of sigmoid
-def sigmoid_derivation(x): 
-    return sigmoid(x) * (1-sigmoid(x))
-
-def relu(x):
-    return np.maximum(0.0, x)
-
-def relu_derivation(x):
-    if x <= 0:
-        return 0
-    else:
-        return 1
+class NN_classification:
+    
+    def __init__(self):
+        self.dataset_input_matrix = []
+        self.num_of_weights = int()
+        self.bias = float()
+        self.weights = []
+        self.weighted_sum = float()
+        self.activation_func_output = float()
+        self.dWeightedSum_dWeights = []
+        self.dCost_dWeights = []
+        self.costs = []
+    
+    # -- Activation functions --: 
+    def sigmoid(x):
+        return 1/(1 + np.exp(-x))
+    
+    # derivative of sigmoid
+    def sigmoid_derivation(x): 
+        return NN_classification.sigmoid(x) * (1-NN_classification.sigmoid(x))
+    
+    def relu(x):
+        return np.maximum(0.0, x)
+    
+    def relu_derivation(x):
+        if x <= 0:
+            return 0
+        else:
+            return 1
 
 # We'll label red flowers as 1 and blue flowers as 0
 
@@ -86,101 +97,99 @@ def relu_derivation(x):
 
 
 
-"""  
- This is a simple 1 layer neural network function, that solves binary classification problems. It takes the following parameters:
-     dataset_input_array: (type: array) the dataset to feed to the neural network
-     output_data_label: (type: integer) the target ouput of the data input sample. The output should be either 0 or 1 as this neural network expects classification problem.
-     input_dimension: (type: integer) how many features / datapoints / independant variables per observation.
-     epochs: (type: integer) number of times you wish for the neural network to perform forward and back propagation updating the weights and bias. The more epochs performed the more accurate / optimised the prediction will be, but the more time and computation it will take.
-     activation_func: (optional - default: 'relu') (type: string) specify the activation function to be used. The default is 'relu' if nothing is specified in this parameter. At the moment the network only accepts 'relu' or 'sigmoid' function. A potential improvement to add more activation functions in future.
-    learning_rate: (optional - default: 0.2) (type: decimal/float) the fraction/percentage of the derivative to use to do weight and bias correction in a single epoch. The higher the fraction/percentage the quicker the weights and bias will be corrected per epoch. But a learning rate that is too high may overshoot in finding the minimum point of error (best optimisation). A good range would be between 0.1 - 0.4
-"""
-def simple_1_layer_classification_neural_network(dataset_input_array, output_data_label, input_dimension, epochs, activation_func='relu', learning_rate=0.2):
-    # The number of weights we will use will depend on number of our input sample data. Each data value will get its own weight.
-    num_of_weights = (len(input_dimension))
-    weights = []
-    weighted_sum = float()
-    activation_func_output = float()
-    dWeightSum_dAllWeights = []
-    dCost_dAllWeights = []
-    costs = []
-    # Set initial network parameters (weights & bias):
-    # Will initialise the weights to a uniform distribution and ensure the numbers are small close to 0.
-    # We need to loop through all the weights to set them to a random value initially.
-    for i in range(num_of_weights):
-        # create random numbers for our initial weights (connections) to begin with. 'rand' method creates small random numbers. 
-        w = np.random.rand()
-        weights.append(w)   
-    # create random number for our initial bias to begin with.
-    b = np.random.rand()
-    
-    # We perform the training based on the number of epochs specified
-    for i in range(epochs):
+    """  
+     This is a simple 1 layer neural network function, that solves binary classification problems. It takes the following parameters:
+         dataset_input_matrix: (type: array) the dataset to feed to the neural network
+         output_data_label: (type: integer) the target ouput of the data input sample. The output should be either 0 or 1 as this neural network expects classification problem.
+         input_dimension: (type: integer) how many features / datapoints / independant variables per observation.
+         epochs: (type: integer) number of times you wish for the neural network to perform forward and back propagation updating the weights and bias. The more epochs performed the more accurate / optimised the prediction will be, but the more time and computation it will take.
+         activation_func: (optional - default: 'relu') (type: string) specify the activation function to be used. The default is 'relu' if nothing is specified in this parameter. At the moment the network only accepts 'relu' or 'sigmoid' function. A potential improvement to add more activation functions in future.
+        learning_rate: (optional - default: 0.2) (type: decimal/float) the fraction/percentage of the derivative to use to do weight and bias correction in a single epoch. The higher the fraction/percentage the quicker the weights and bias will be corrected per epoch. But a learning rate that is too high may overshoot in finding the minimum point of error (best optimisation). A good range would be between 0.1 - 0.4
+    """
+    def simple_1_layer_classification_neural_network(dataset_input_matrix, output_data_label, input_dimension, epochs, activation_func='relu', learning_rate=0.2):
+        # The number of weights we will use will depend on number of our input sample data. Each data value will get its own weight.
+        self.num_of_weights = (len(input_dimension))
+        self.dataset_input_matrix = dataset_input_matrix
+        # Set initial network parameters (weights & bias):
+        # Will initialise the weights to a uniform distribution and ensure the numbers are small close to 0.
+        # We need to loop through all the weights to set them to a random value initially.
+        for i in range(self.num_of_weights):
+            # create random numbers for our initial weights (connections) to begin with. 'rand' method creates small random numbers. 
+            w = np.random.rand()
+            self.weights.append(w)   
+        # create random number for our initial bias to begin with.
+        self.bias = np.random.rand()
         
-        # create random index
-        ri = np.random.randint(len(data))
-        # Pick random input: pick a random observation from the dataset
-        input_sample = dataset_input_array[ri]
-    
-        # Loop through all the independant variables in the vector of input sample
-        for i in range(len(input_sample)):
-            # Weighted_sum: we take each independant variable in the entire vector of input sample data, add weight to it then add it to the subtotal of weighted sum
-            weighted_sum += input_sample[i] * weights[i]
-
-        # Add Bias: add bias to weighted sum
-        weighted_sum += b
-        
-        # Activation: process weighted_sum through activation function
-        if activation_func == 'sigmoid':
-            activation_func_output = sigmoid(weighted_sum)
-        else:
-            activation_func_output = relu(weighted_sum)
-    
-        # Prediction: Because this is a single layer neural network, so the activation will be the same as the prediction
-        pred = activation_func_output
-        
-        target = output_data_label
-        
-        # Cost: we use the error squared function as the cost function to calculate the prediction error margin
-        cost = np.square(pred - target)
-        
-        # Derivative: bringing derivative from cost with respect to each of the network parameters (w1, w2, b)
-        dCost_dPred = 2 * (pred - target)
-        if activation_func == 'sigmoid':
-            dPred_dWeightSum = sigmoid_derivation(weighted_sum)
-        else:
-           dPred_dWeightSum = relu_derivation(weighted_sum) 
+        # We perform the training based on the number of epochs specified
+        for i in range(epochs):
             
-        # Bias is just a number on its own added to the formula so its derivative is just 1
-        dWeightAvr_dB = 1
-        # The derivative of the Weighted Sum with respect to each weight is the input data point / independant variable it's multiplied by. 
-        # Therefore I simply assigned the input data array to another variable I called 'dWeightSum_dAllWeights'
-        # to represent the array of the derivative of all the weights involved. I could've used the 'input_sample'
-        # array variable itself, but for the sake of readibility, I created a separate variable to represent the derivative of weight.
-        dWeightSum_dAllWeights = input_sample
+            # create random index
+            ri = np.random.randint(len(self.dataset_input_matrix))
+            # Pick random observation vector: pick a random observation vector of independant variables (x) from the dataset matrix
+            input_sample_vector = self.dataset_input_matrix[ri]
         
-        # Derivative chaining all the derivative functions together (chaining rule)
-        # Loop through all the weights to workout the derivative of the cost with respect to each weight:
-        for i in range(len(dWeightSum_dAllWeights)):
-            dCost_dAllWeights = dCost_dPred * dPred_dWeightSum * dWeightSum_dAllWeights[i]
-
-        dCost_dB = dCost_dPred * dPred_dWeightSum * dWeightAvr_dB
+            # Loop through all the independant variables (x) in the vector of input sample
+            for i in range(len(input_sample_vector):
+                # Weighted_sum: we take each independant variable in the entire vector of input sample, add weight to it then add it to the subtotal of weighted sum
+                self.weighted_sum += input_sample_vector[i] * self.weights[i]
+    
+            # Add Bias: add bias to weighted sum
+           self.weighted_sum += self.bias
+            
+            # Activation: process weighted_sum through activation function
+            if activation_func == 'sigmoid':
+                self.activation_func_output = sigmoid(self.weighted_sum)
+            else:
+                self.activation_func_output = relu(self.weighted_sum)
         
-        # Backpropagation: update the weights and bias according to the derivatives calculated above.
-        # In other word we update the parameters of the neural network to correct parameters and therefore 
-        # optimise the neural network prediction to be as accurate to the real output as possible
-        # We loop through each weight and update it with its derivative with respect to the cost error function value. 
-        for i in range(len(weights)):
-            weights[i] = weights[i] - learning_rate * dCost_dAllWeights[i]
-        b = b - learning_rate * dCost_dB
+            # Prediction: Because this is a single layer neural network, so the activation will be the same as the prediction
+            pred = self.activation_func_output
+            
+            target = output_data_label
+            
+            # Cost: we use the error squared function as the cost function to calculate the prediction error margin
+            cost = np.square(pred - target)
+            
+            # Derivative: bringing derivative from cost with respect to each of the network parameters (weights and bias)
+            dCost_dPred = 2 * (pred - target)
+            if activation_func == 'sigmoid':
+                dPred_dWeightSum = sigmoid_derivation(self.weighted_sum)
+            else:
+               dPred_dWeightSum = relu_derivation(self.weighted_sum) 
+                
+            # Bias is just a number on its own added to the formula so its derivative is just 1
+            dWeightSum_dB = 1
+            # The derivative of the Weighted Sum with respect to each weight is the input data point / independant variable it's multiplied by. 
+            # Therefore I simply assigned the input data array to another variable I called 'dWeightedSum_dWeights'
+            # to represent the array of the derivative of all the weights involved. I could've used the 'input_sample'
+            # array variable itself, but for the sake of readibility, I created a separate variable to represent the derivative of weight.
+            dWeightedSum_dWeights = input_sample_vector
+            
+            # Derivative chaining all the derivative functions together (chaining rule)
+            # Loop through all the weights to workout the derivative of the cost with respect to each weight:
+            for dWeightedSum_dWeight in dWeightedSum_dWeights:
+                dCost_dWeight = dCost_dPred * dPred_dWeightSum * dWeightedSum_dWeight
+                self.dCost_dWeights.append(dCost_dWeight)
+    
+            dCost_dB = dCost_dPred * dPred_dWeightSum * dWeightSum_dB
+            
+            # Backpropagation: update the weights and bias according to the derivatives calculated above.
+            # In other word we update the parameters of the neural network to correct parameters and therefore 
+            # optimise the neural network prediction to be as accurate to the real output as possible
+            # We loop through each weight and update it with its derivative with respect to the cost error function value. 
+            for i in range(len(self.weights)):
+                self.weights[i] = self.weights[i] - learning_rate * self.dCost_dWeights[i]
+            self.bias = self.bias - learning_rate * dCost_dB
+            
+            # for each 100th loop we're going to get a summary of the
+            # prediction compared to the actual ouput
+            # to see if the prediction is as expected.
+            # Anything in prediction above 0.5 should match value 
+            # 1 of the actual ouptut. Any prediction below 0.5 should
+            # match value of 0 for actual output 
+            if i % 100 == 0:
+                self.costs.append(cost)
+               
+        plt.plot(self.costs)
+    
         
-        # for each 100th loop we're going to get a summary of the
-        # prediction compared to the actual ouput
-        # to see if the prediction is as expected.
-        # Anything in prediction above 0.5 should match value 
-        # 1 of the actual ouptut. Any prediction below 0.5 should
-        # match value of 0 for actual output 
-        if i % 100 == 0:
-            costs.append(cost)
-           
-    plt.plot(costs)
