@@ -6,10 +6,8 @@ Created on Wed Apr  3 17:40:03 2019
 """
 
 # ------- Simple Neural Network written in pure python (No ML packages) ----------
-
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 import os
 
 class NN_classification:
@@ -19,8 +17,11 @@ class NN_classification:
         self.num_of_weights = int()
         self.bias = float()
         self.weights = []
-        self.weighted_sum = float()
-        self.activation_func_output = float()
+        self.training_weighted_sum = float()
+        self.test_weighted_sum = float()
+        self.chosen_activation = None
+        self.train_activation_func_output = float()
+        self.test_activation_func_output = float()
         self.dWeightedSum_dWeights = []
         self.dCost_dWeights = []
         self.costs = []
@@ -42,74 +43,26 @@ class NN_classification:
         else:
             return 1
 
-# We'll label red flowers as 1 and blue flowers as 0
-
-"""
---- Explanation of cost function used and how to calculate derivative of cost function with respect to weights and bias ---
-    
- Cost function we will use is the "squared error": (prediction - target)^2.
- The idea is we workout the slope of the graph of the cost function with respect to each weight and the bias
- at a specific value of the each weight (w) and at a specific value of bias (b).
- This is also called the derivative (rate of change) of cost function with respect to each weight and to the bias.
- Once the derivative or slope of graph is worked out, you deduct only a fraction of that rate of change 
- from the concerned weight or the bias, so that we don't overshoot the minimum point of the graph 
- of the cost function with respect to that weight or the bias.
- The weights and bias are thus updated with a fraction of the slope of graph (or derivative) 
- by deducting that fraction from the weights and bias as a correction. 
- This is all done in a process called an Epoch. Once the weights and bias are updated once,
- another forward feed is carried out with the input data and the newly updated weights and bias
- to output another cost function value, this time with a lower error value. 
- When the weights and/or bias are too high, the slope of cost function is a positive number.
- and when the weights and/or bias are too low the slope of cost function is a negative number.
- So what we want to do is subtract a fraction of the slope from weights and/or bias 
- and no matter where the weights and bias start, that will push the prediction directly 
- towards the target value, and with the right amount. Because as weights and bias get 
- closer and closer to the target the slope of the function approaches 0, so our updates
- become smaller and smaller, until we reach the target. 
- We could have a the following formula for updating the weights and bias:
-     weight = weight - 0.1 * cost_function_slope(weight)
- Here we're deducting 10% of the cost function slope with respect to the weight
- or deducting 10% of the derivate (rate of change) of cost function with respect 
- to the weight at the particular weight value.
- The same formula can be applied to the bias as well.
-    # Formula for slope = rise / run
- The "run" is the different in two points of x axis (or the weight)
- The "rise" is the difference in y axis (or the function) given the difference
- in x axis, so if difference in x is = h. Then Our slope formula would be:
-        slope(x) = cost(x+h) - cost(x) / h. 
-  This is the general formula to approximate the slope of any function. Note
-  h (or difference in x) should be extremely small, almost reaching to 0, to 
-  give more accurate slope of a function, therefore the more accurate the 
-  approximation is.
-  Note also that x+h point on the graph becomes higher on the graph than x point,
-  when the slope is a positive direction, and below x point when slope is in a 
-  negaive direction. This makes sense because point x is always less than point x+h.
-  Therefore in a negative slope cost(x+h) will be less than cost(x) giving a negative slope.
-  If the cost(x) = (x-4)^2 . Then the slope(x) = 2*(x-4)
-  
-  Finally to expand this to the final form of the cost function in a Linear Regression model
-  cost = 1/m * (sum(model(X)i) - target i )**2)
-  1/m because we want to divide by the number of input samples to get the avrage of cost function
-  sum - because we want to add up each input multiplied by its weight and finally add the bias at the end, to get the predicted outcome.
-  
-"""
-
-
-
-
     """  
      This is a simple 1 layer neural network function, that solves binary classification problems. It takes the following parameters:
          dataset_input_matrix: (type: array) the dataset to feed to the neural network
          output_data_label: (type: integer) the target ouput of the data input sample. The output should be either 0 or 1 as this neural network expects classification problem.
          input_dimension: (type: integer) how many features / datapoints / independant variables per observation.
          epochs: (type: integer) number of times you wish for the neural network to perform forward and back propagation updating the weights and bias. The more epochs performed the more accurate / optimised the prediction will be, but the more time and computation it will take.
-         activation_func: (optional - default: 'relu') (type: string) specify the activation function to be used. The default is 'relu' if nothing is specified in this parameter. At the moment the network only accepts 'relu' or 'sigmoid' function. A potential improvement to add more activation functions in future.
+         activation_func: (optional - default: 'sigmoid') (type: string) specify the activation function to be used. The default is 'sigmoid' if nothing is specified in this parameter. Although 'relu' is proved quicker for a neural network to learn, it's best to use for the hidden layers, while sigmoid is best used for output layer because of the dealing with probability. Since we only have 1 layer (considered the output layer as well) so sigmoid is best to be the default. At the moment the network only accepts 'relu' or 'sigmoid' function. A potential improvement to add more activation functions in future.
         learning_rate: (optional - default: 0.2) (type: decimal/float) the fraction/percentage of the derivative to use to do weight and bias correction in a single epoch. The higher the fraction/percentage the quicker the weights and bias will be corrected per epoch. But a learning rate that is too high may overshoot in finding the minimum point of error (best optimisation). A good range would be between 0.1 - 0.4
     """
-    def simple_1_layer_classification_neural_network(dataset_input_matrix, output_data_label, input_dimension, epochs, activation_func='relu', learning_rate=0.2):
+    # --- nueral network structure diagram --- 
+
+    #    O  output prediction
+    #   / \   w1, w2, b
+    #  O   O  datapoint 1, datapoint 2
+
+    def simple_1_layer_classification_NN(self, dataset_input_matrix, output_data_label, input_dimension, epochs, activation_func='sigmoid', learning_rate=0.2):
         # The number of weights we will use will depend on number of our input sample data. Each data value will get its own weight.
         self.num_of_weights = (len(input_dimension))
         self.dataset_input_matrix = dataset_input_matrix
+        
         # Set initial network parameters (weights & bias):
         # Will initialise the weights to a uniform distribution and ensure the numbers are small close to 0.
         # We need to loop through all the weights to set them to a random value initially.
@@ -117,33 +70,33 @@ class NN_classification:
             # create random numbers for our initial weights (connections) to begin with. 'rand' method creates small random numbers. 
             w = np.random.rand()
             self.weights.append(w)   
-        # create random number for our initial bias to begin with.
+        # create a random number for our initial bias to begin with.
         self.bias = np.random.rand()
         
         # We perform the training based on the number of epochs specified
         for i in range(epochs):
-            
             # create random index
             ri = np.random.randint(len(self.dataset_input_matrix))
-            # Pick random observation vector: pick a random observation vector of independant variables (x) from the dataset matrix
-            input_sample_vector = self.dataset_input_matrix[ri]
+            # Pick random observation vector: pick a random observation vector of independent variables (x) from the dataset matrix
+            input_observation_vector = self.dataset_input_matrix[ri]
         
-            # Loop through all the independant variables (x) in the vector of input sample
-            for i in range(len(input_sample_vector):
-                # Weighted_sum: we take each independant variable in the entire vector of input sample, add weight to it then add it to the subtotal of weighted sum
-                self.weighted_sum += input_sample_vector[i] * self.weights[i]
+            # Loop through all the independent variables (x) in the observation
+            for i in range(len(input_observation_vector)):
+                # Weighted_sum: we take each independent variable in the entire observation, add weight to it then add it to the subtotal of weighted sum
+                self.training_weighted_sum += input_observation_vector[i] * self.weights[i]
     
             # Add Bias: add bias to weighted sum
-           self.weighted_sum += self.bias
+            self.training_weighted_sum += self.bias
             
             # Activation: process weighted_sum through activation function
+            self.chosen_activation = activation_func
             if activation_func == 'sigmoid':
-                self.activation_func_output = sigmoid(self.weighted_sum)
+                self.train_activation_func_output = NN_classification.sigmoid(self.training_weighted_sum)
             else:
-                self.activation_func_output = relu(self.weighted_sum)
+                self.train_activation_func_output = NN_classification.relu(self.training_weighted_sum)
         
             # Prediction: Because this is a single layer neural network, so the activation will be the same as the prediction
-            pred = self.activation_func_output
+            pred = self.train_activation_func_output
             
             target = output_data_label
             
@@ -153,9 +106,9 @@ class NN_classification:
             # Derivative: bringing derivative from cost with respect to each of the network parameters (weights and bias)
             dCost_dPred = 2 * (pred - target)
             if activation_func == 'sigmoid':
-                dPred_dWeightSum = sigmoid_derivation(self.weighted_sum)
+                dPred_dWeightSum = NN_classification.sigmoid_derivation(self.training_weighted_sum)
             else:
-               dPred_dWeightSum = relu_derivation(self.weighted_sum) 
+               dPred_dWeightSum = NN_classification.relu_derivation(self.training_weighted_sum) 
                 
             # Bias is just a number on its own added to the formula so its derivative is just 1
             dWeightSum_dB = 1
@@ -163,7 +116,7 @@ class NN_classification:
             # Therefore I simply assigned the input data array to another variable I called 'dWeightedSum_dWeights'
             # to represent the array of the derivative of all the weights involved. I could've used the 'input_sample'
             # array variable itself, but for the sake of readibility, I created a separate variable to represent the derivative of weight.
-            dWeightedSum_dWeights = input_sample_vector
+            dWeightedSum_dWeights = input_observation_vector
             
             # Derivative chaining all the derivative functions together (chaining rule)
             # Loop through all the weights to workout the derivative of the cost with respect to each weight:
@@ -191,5 +144,32 @@ class NN_classification:
                 self.costs.append(cost)
                
         plt.plot(self.costs)
-    
+
         
+    """
+    Predict method used to predict the outcome of a new dataset (whether a test dataset or simply a new dataset) using the already trained neural network model.
+        Param:
+            test_new_observations: (type: 2-dimensional array/list) The input test dataset. Please ensure this a 2-dimensional array/list (i.e. matrix).
+    """
+    def predict(self, test_new_observations):
+        self.test_new_observations = test_new_observations
+        # loop through each observation in the matrix
+        for observation in self.test_new_observations:
+            # Loop through all the independent variables (x) in the observation
+            for i in range(len(observation)):
+                # Weighted_sum: we take each independent variable in the entire observation, add weight to it then add it to the subtotal of weighted sum
+                self.test_weighted_sum += observation[i] * self.weights[i]
+            self.test_weighted_sum += self.bias
+        
+        # Activation: 
+        if self.chosen_activation == 'sigmoid':
+           self.test_activation_func_output = NN_classification.sigmoid(self.training_weighted_sum)
+        else:
+            self.test_activation_func_output = NN_classification.relu(self.training_weighted_sum)
+        
+        # Prediction: Because this is a single layer neural network, so the activation will be the same as the prediction
+        pred = self.train_activation_func_output
+        return pred
+        
+
+
