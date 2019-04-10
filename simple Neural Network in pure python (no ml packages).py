@@ -16,7 +16,6 @@ class NN_classification:
     
     def __init__(self):
         self.dataset_input_matrix = []
-        self.num_of_weights = int()
         self.bias = float()
         self.weights = []
         self.training_weighted_sum = float()
@@ -72,17 +71,31 @@ class NN_classification:
 
     def simple_1_layer_classification_NN(self, dataset_input_matrix, output_data_labels, input_dimension, epochs, activation_func='sigmoid', learning_rate=0.2, cost_func='squared_error'):
         # The number of weights we will use will depend on number of our input sample data. Each data value will get its own weight.
-        self.num_of_weights = input_dimension
+
         self.dataset_input_matrix = dataset_input_matrix
         correct_pred = int()
         incorrect_pred = int()
+        # The variable to store the cost value
+        cost = float()
+        debug_weights = []
+        debug_weight1 = []
+        debug_weight2 = []
+        debug_training_weighted_sum = float()
+        # store the chosen activation function reference to refer to it in the 'predict' method.
+        self.chosen_cost_func = cost_func
+
         # Set initial network parameters (weights & bias):
         # Will initialise the weights to a uniform distribution and ensure the numbers are small close to 0.
         # We need to loop through all the weights to set them to a random value initially.
-        for i in range(self.num_of_weights):
+        for i in range(input_dimension):
             # create random numbers for our initial weights (connections) to begin with. 'rand' method creates small random numbers. 
             w = np.random.rand()
-            self.weights.append(w)   
+            self.weights.append(w)
+            
+            
+            debug_weights = self.weights
+            
+            
         # create a random number for our initial bias to begin with.
         self.bias = np.random.rand()
         
@@ -93,33 +106,56 @@ class NN_classification:
             # Pick random observation vector: pick a random observation vector of independent variables (x) from the dataset matrix
             input_observation_vector = self.dataset_input_matrix[ri]
         
+            
+            debug_weight1 = []
+
+
+            self.training_weighted_sum = 0
+            debug_training_weighted_sum = self.training_weighted_sum
+            
+            debug_training_weighted_sum = self.training_weighted_sum
             # Loop through all the independent variables (x) in the observation
             for i in range(len(input_observation_vector)):
                 # Weighted_sum: we take each independent variable in the entire observation, add weight to it then add it to the subtotal of weighted sum
+                
                 self.training_weighted_sum += input_observation_vector[i] * self.weights[i]
+                
+                debug_weight1.append(self.weights[i])
+                debug_training_weighted_sum = self.training_weighted_sum
+                
     
             # Add Bias: add bias to weighted sum
             self.training_weighted_sum += self.bias
             
+            
+            debug_training_weighted_sum = self.training_weighted_sum
+            
+            
             # Activation: process weighted_sum through activation function
             self.chosen_activation = activation_func
             if activation_func == 'sigmoid':
-                self.train_activation_func_output = NN_classification.sigmoid(self.training_weighted_sum)
+                self.train_activation_func_output = NN_classification.sigmoid(self.training_weighted_sum)   
             elif activation_func == 'relu':
                 self.train_activation_func_output = NN_classification.relu(self.training_weighted_sum)
             else:
                 print("Exception error - no activation function utilised, in training method", file=sys.stderr)
                 return
                 
-            # Prediction: Because this is a single layer neural network, so the activation will be the same as the prediction
+             
+            debug_train_activation_func_output = self.train_activation_func_output
+            
+            
+            # Prediction: Because this is a single layer neural network, so the activation output will be the same as the prediction
             pred = self.train_activation_func_output
             self.train_predictions.append(pred)
             
-            # store the chosen activation function to refer to in the 'predict' function.
-            self.chosen_cost_func = cost_func
             
-            # The variable to store the cost value
-            cost = None
+            debug_train_predictions = self.train_predictions
+            
+            
+            
+            
+            
             
             # The variable to store the derivative of the cost function with respect to prediction
             dCost_dPred = None
@@ -133,6 +169,10 @@ class NN_classification:
             else:
                print("Exception error - no cost function utilised, in training method", file=sys.stderr)
                return
+            
+               
+            debug_cost = cost
+            
             
             # Derivative: bringing derivative from cost with respect to each of the network parameters (weights and bias)
             if activation_func == 'sigmoid':
@@ -159,13 +199,27 @@ class NN_classification:
     
             dCost_dB = dCost_dPred * dPred_dWeightSum * dWeightSum_dB
             
+            
+            debug_weight2 = []
+            
+            
             # Backpropagation: update the weights and bias according to the derivatives calculated above.
             # In other word we update the parameters of the neural network to correct parameters and therefore 
             # optimise the neural network prediction to be as accurate to the real output as possible
             # We loop through each weight and update it with its derivative with respect to the cost error function value. 
             for i in range(len(self.weights)):
                 self.weights[i] = self.weights[i] - learning_rate * self.dCost_dWeights[i]
+
+
+                debug_dCost_dWeights = self.dCost_dWeights[i]
+                debug_weight2.append(self.weights[i])
+    
+
             self.bias = self.bias - learning_rate * dCost_dB
+            
+            
+            debug_bias = self.bias
+            
             
             # for each 50th loop we're going to get a summary of the
             # prediction compared to the actual ouput
@@ -175,6 +229,10 @@ class NN_classification:
             # match value of 0 for actual output 
             if i % 50 == 0:
                 self.costs.append(cost)
+                
+            
+            debug_cost = self.costs
+                
                     
             # Compare prediction to target
             error_margin = np.sqrt(np.square(pred - output_data_labels[ri]))
@@ -197,8 +255,8 @@ class NN_classification:
         print('Average Accuracy: {}'.format(self.train_average_accuracy))
         print('Correct predictions: {}, Incorrect Predictions: {}'.format(correct_pred, incorrect_pred))
         print('costs = {}'.format(self.costs))
-        y = np.array(self.costs)
-        plt.plot(y)
+        y_costs = np.array(self.costs)
+        plt.plot(y_costs)
         plt.show()
 
         
@@ -294,6 +352,6 @@ X_train, y_train, X_test, y_test = data[:6, :-1], data[:6, -1], data[6:, :-1], d
 
 nn_model = NN_classification()
 
-nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 500)
+nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 500000, learning_rate=0.5)
 
 nn_model.predict(X_test, y_test)
