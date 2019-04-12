@@ -10,7 +10,6 @@ from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-# import os
 
 class NN_classification:
     
@@ -166,13 +165,23 @@ class NN_classification:
    
             bias = bias - learning_rate * dCost_dB
 
-            # for each 50th loop we're going to get a summary of the
-            # prediction compared to the actual ouput
-            # to see if the prediction is as expected.
-            # Anything in prediction above 0.5 should match value 
-            # 1 of the actual ouptut. Any prediction below 0.5 should
-            # match value of 0 for actual output 
-            if i % 500 == 0:
+            # We want to track the cost value over the course of the epochs
+            # to see how well the neural network is performing.
+            # A gradual decrease in the value shows that the network
+            # is learning and improving its guesses. Otherwise if
+            # there's no decrease in the value then the networks is
+            # not improving / learning.
+            # We don't want to append the cost of every epoch to the costs 
+            # array, otherwise for a large number of epochs the array will
+            # contain so many values. Also our graph will have so many data
+            # points, it won't be readable. 
+            # So we will only add a `cost` value for every number of epochs, to the costs array.
+            # Since the number of epochs will always vary depending on the argument
+            # passed to the method, the appending of a cost value to the costs array
+            # takes place with the frequency of 1% of the total number of epochs
+            # to ensure only 100 data points (costs) are plotted (no matter how many epochs take place).
+            append_cost_freq = epochs * 0.01
+            if i % append_cost_freq == 0:
                 costs.append(cost)
         
             # Compare prediction to target
@@ -200,9 +209,7 @@ class NN_classification:
         # Print out results 
         print('Average Accuracy: {}'.format(self.train_average_accuracy))
         print('Correct predictions: {}, Incorrect Predictions: {}'.format(correct_pred, incorrect_pred))
-        #print('costs = {}'.format(costs))
-        y_costs = np.array(costs)
-        plt.plot(y_costs)
+        plt.plot(costs)
         plt.show()
 
         
@@ -297,6 +304,6 @@ X_train, y_train, X_test, y_test = data[:6, :-1], data[:6, -1], data[6:, :-1], d
 
 nn_model = NN_classification()
 
-nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 100000, learning_rate=0.2)
+nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 10000, learning_rate=0.2)
 
 nn_model.predict(X_test, y_test)

@@ -1,20 +1,46 @@
 # Simple Neural Network in pure python (no ML packages)
-
-The scenario:
-
-It all starts with farmer. She like to measure everything around her. She was growing some flowers one day and realised she hadn’t measured them. So she decided that this day was the perfect day to take out her rulers and take some measurements. She has 2 types of flowers: red and blue flowers. She has many flowers. 
-
-She takes out her 2 rulers and lay one horizantally and the other vertically, connecting with the first ruler at a 90 degree angle, like an X and Y graph. She plucks 1 petal from the red flower and lays down on her rulers. She measures the petal horizontally, along the petal's length, and then vertically along the petal’s width. She repeats the same process with the blue flower. She goes on to measure numerous flowers of red and blue colour. However, she forgot to note the color of the last measurement. So it looks like her dataset is incomplete.
-
-She has to think about how to solve this problem, to know the color of flower according to its petal measurement. She thought about a number of ways:
-1. She could compare the flower petal measurements against the others in the table, and workout that all the red petals come from similar flowers, so therefore their measurements would all be similar. And the same with the blue flowers. So she could compare all other measurements against the measurement with the unknown color and hope she would find some pattern, but there are a lot of numbers and its kind of a pain. 
-2. She thought about a better idea, which is to graph all measurements. She then plotted the unknown flower measurement and found that it lies within the red flowers measurements area of the graph. So in this way she doesn’t have to compare the numbers in the table and try to find some pattern, but simply look at the graph to see where the unknown flower measurement lie, to then be able to complete her dataset.
-3. She also has a computer, so she decided to use a neural network to workout the unknown flower color. A neural network will automate the task that the farmer had to do to workout the color of the flower based on its measurements. The advantage of neural network is that it is much faster and more accurate to crunch through numbers and make the right prediction. Let’s say we had 10000 flowers, it wouldn’t be practical to graph all of them and try to predict the unknowns. A neural network can do this much faster.  
-We will build a simple neural network to predict what color a flower is just by giving the width and length of its petal. 
+**Introduction:
+I've created my own very simple 1 layer neural network, specialised in binary classification problems. Where the input data-points are multiplied by the weights and a bias is added. The whole thing is summed (weighted-sum) and fed through an activation function (sigmoid is the default). That would be the prediction output. There are no other layers (i.e. hidden layers) involved.
+Just for my own understanding of the mathematical side, I wanted to create a neural network from scratch, using plain python code, and without the help of existing ML libraries/packages (e.g. Keras, PyTorch, Scikit-learn ..etc),  which would provide me with ready made model but wouldn't help me understand the inner working parts of the models (so called "working with a black-box"). 
+The model is created inside a method (simple_1_layer_classification_NN) that takes the necessary parameters to make a prediction. 
 
 
-### Dependencies
+## Getting Started
+I would recommend that when you download the code to your local machine, to run it on Spyder IDE. I find Spyder robust and flexible for running different portions of code, displaying: console output, charts, tracking variables/data structures' values among other features. But you're free to use your own preferred IDE/editor. 
+
+
+## Dependencies
 * numpy
+* matplotlib
 Python 2 and 3 both work for this. Use [pip](https://pip.pypa.io/en/stable/) to install any dependencies.
 
 
+## Usage
+**Train the network:
+I have provided an example data-set at the end of the Python file, where you can use it to train the network and evaluate its performance. This line, in the Python file is where you can do that: 
+```
+nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 10000, learning_rate=0.2)
+```
+You can experiment with different parameters, such as: `number of epochs` and `learning rate`. 
+
+**Test the network:
+There's also a `predict` method which can be used to predict the test data-set, using the line below, in the Python (after you have trained the network): 
+```
+nn_model.predict(X_test, y_test)
+``` 
+
+## Improvements
+As this is an experimental exploration project for building my own intuition of neural networks, inevitably there are many improvements required, that I'm looking to explore and add in future, including:
+- Better and consistent learning
+- Whether `input_dimension` is really required as a paramter in the `simple_1_layer_classification_NN`.
+- The method ideally need to accept as many layers and nodes as required, passed via the method arguments, to enable a customised neural network.
+- Following from the previous point, as such currently the method accepts either `sigmoid` or `relu` as arguments for the network's activation function. However, as the method is only designed to build a 1 layer neural network (meaning it's both the input and output layer), so `relu` would not be adequate to use for the output layer to predict classification problems. It's mainly effective in the hidden layers. Thus it's currently of no use to pass to the method, and therefore expanding the method to allow for adding multiple layers in order to make use of the `relu` argument. 
+- Look at what other features are required to make an ideal neural network.
+- Once all of these improvements are made, we can look into expanding the whole code as a Python module/package, if it proves that it offers anything different from the other existing ML packages.  
+
+## Contributors
+Hareth Naji - hazzaldo@hotmail.com
+
+
+## Thanks
+This project is inspired from the YouTube video series:`Beginner Intro to Neural Networks networks`, by `giant_neural_networks` channel, which I used to get a fundamental understanding of a basic neural network from the algebraic, geometrical and coding level. And hence, give me an intuition of how to build a neural network from scratch without the help of out-of-the-box ML libraries and packages.    
