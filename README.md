@@ -1,6 +1,6 @@
 # Neural Network written from scratch (no ML packages)
+<img src="img/neural_net1.jpg" width="1000" > <img src="img/neural_net2.png" width="1000" >
 **Introduction**:
-<img src="img/neural_net1.jpg" width="100" > <img src="img/neural_net2.png" width="100" >
 I've created my own very simple 1 layer neural network, specialised in binary classification problems. Where the input data-points are multiplied by the weights and a bias is added. The whole thing is summed (weighted-sum) and fed through an activation function (sigmoid is the default). That would be the prediction output. There are no other layers (i.e. hidden layers) involved.
 Just for my own understanding of the mathematical side, I wanted to create a neural network from scratch, using plain python code, and without the help of existing ML libraries/packages (e.g. Keras, PyTorch, Scikit-learn ..etc),  which would provide me with ready made model but wouldn't help me understand the inner working parts of the models (so called "working with a black-box"). 
 The model is created inside a method (simple_1_layer_classification_NN) that takes the necessary parameters to make a prediction. 
