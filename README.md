@@ -13,6 +13,7 @@ I would recommend that when you download the code to your local machine, to run 
 ## Dependencies
 * numpy
 * matplotlib
+
 Python 2 and 3 both work for this. Use [pip](https://pip.pypa.io/en/stable/) to install any dependencies.
 
 
