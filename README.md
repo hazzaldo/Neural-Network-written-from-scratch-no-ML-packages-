@@ -7,7 +7,7 @@ The model is created inside a method (simple_1_layer_classification_NN) that tak
 
 
 ## Getting Started
-I would recommend that when you download the code to your local machine, to run it on Spyder IDE. I find Spyder robust and flexible for running different portions of code, displaying: console output, charts, tracking variables/data structures' values among other features. But you're free to use your own preferred IDE/editor. 
+I would recommend that when you download the code to your local machine, to run it on Spyder IDE. I find Spyder robust and flexible for running different portions of code, displaying: console output, charts, tracking variables/data structures' values among other features. But you're free to use your own preferred IDE/text editor. 
 
 
 ## Dependencies
@@ -18,14 +18,14 @@ Python 2 and 3 both work for this. Use [pip](https://pip.pypa.io/en/stable/) to 
 
 
 ## Usage
-**Train the network:
+**Train the network**:
 I have provided an example data-set at the end of the Python file, where you can use it to train the network and evaluate its performance. This line, in the Python file is where you can do that: 
 ```
 nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 10000, learning_rate=0.2)
 ```
 You can experiment with different parameters, such as: `number of epochs` and `learning rate`. 
 
-**Test the network:
+**Test the network**:
 There's also a `predict` method which can be used to predict the test data-set, using the line below, in the Python (after you have trained the network): 
 ```
 nn_model.predict(X_test, y_test)
