@@ -225,17 +225,20 @@ class NN_classification:
         Param:
             test_new_observations: (type: 2-dimensional array/list) The input test dataset. Please ensure this a 2-dimensional array/list (i.e. matrix).
     """
-    def predict(self, test_new_input_dataset, test_new_target_outputs):
+    def predict(self, test_new_input_dataset, output_data_labels):
         num_of_loops = int()
         correct_pred = int()
         incorrect_pred = int()
         activation_func_output = float()
         predictions = []
+        # reset average accuracy for test data
+        self.test_average_accuracy = 0
         
         # loop through each observation in the matrix
-        for observation in test_new_input_dataset:
+        for ri in range(len(test_new_input_dataset)):
             # for each observation, we need to reset the value of weighted sum so not to increment on top of the previous observations weights sums
             weighted_sum = 0
+            observation = test_new_input_dataset[ri]
             # Loop through all the independent variables (x) in the observation
             for i in range(len(observation)):
                 # Weighted_sum: we take each independent variable in the entire observation, add weight to it then add it to the subtotal of weighted sum
@@ -250,7 +253,7 @@ class NN_classification:
             predictions.append(pred)
             
             # Compare prediction to target
-            error_margin = np.sqrt(np.square(pred - test_new_target_outputs[test_new_input_dataset[observation]]))
+            error_margin = np.sqrt(np.square(pred - output_data_labels[ri]))
             accuracy = (1 - error_margin)* 100
             self.test_average_accuracy += accuracy
             num_of_loops +=1
@@ -263,13 +266,11 @@ class NN_classification:
             else:
                 print("Exception error - 'margin error' for 'predict' method is out of range. Must be between 0 and 1, in predict method", file=sys.stderr)
                 return
-                
-        # Calculate average accuracy from the predictions of all obervations in the test dataset
-        self.test_average_accuracy /= num_of_loops
+        
+        # calculate average accuracy of predictions
+        self.test_average_accuracy = round(self.test_average_accuracy / len(test_new_input_dataset))
         
         # Print out results
-        for i in range(len(test_new_target_outputs)):
-            print('Prediction: {}, Target: {}'.format(predictions[i], test_new_target_outputs[i]))
         print('Average Accuracy: {}'.format(self.test_average_accuracy))
         print('Correct predictions: {}, Incorrect Predictions: {}'.format(correct_pred, incorrect_pred))
         
