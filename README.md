@@ -47,4 +47,4 @@ Hareth Naji - hazzaldo@hotmail.com
 
 
 ## Thanks
-This project is inspired from the YouTube video series:`Beginner Intro to Neural Networks networks`, by `giant_neural_networks` channel, which I used to get a fundamental understanding of a basic neural network from the algebraic, geometrical and coding level. And hence, give me an intuition of how to build a neural network from scratch without the help of out-of-the-box ML libraries and packages.    
+This project is inspired from the YouTube video series:`Beginner Intro to Neural Networks networks`, by `giant_neural_networks` channel, which I used to get a fundamental understanding of a basic neural network from the algebraic, geometrical and coding level. Hence, it provided me with the intuition of how to build a neural network from scratch without the help of out-of-the-box ML libraries and packages.    
