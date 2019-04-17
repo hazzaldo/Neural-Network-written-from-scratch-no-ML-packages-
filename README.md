@@ -21,7 +21,7 @@ Python 2 and 3 both work for this. Use [pip](https://pip.pypa.io/en/stable/) to 
 **Train the network**:
 I have provided an example data-set at the end of the Python file, where you can use it to train the network and evaluate its performance. This line, in the Python file is where you can do that: 
 ```
-nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 10000, learning_rate=0.2)
+simple_1_layer_classification_NN(X_train, y_train, 2, 10000, learning_rate=0.2)
 ```
 You can experiment with different parameters, such as: `number of epochs` and `learning rate`. 
 
