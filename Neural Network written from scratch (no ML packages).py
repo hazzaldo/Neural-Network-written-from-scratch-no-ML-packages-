@@ -9,6 +9,7 @@ Created on Wed Apr  3 17:40:03 2019
 from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 import sys
 
 class NN_classification:
@@ -107,109 +108,114 @@ class NN_classification:
         # create a random number for our initial bias to begin with.
         bias = np.random.rand()
         
+        '''
+        I tried adding the shuffle step, where the matrix is shuffled only in terms of its observations (i.e. rows)
+        but this has dropped the accuracy dramaticly, to the point where the 50% range was the best the model can achieve.
+        '''
+        #input_matrix = dataset_input_matrix
+        # shuffle our matrix observation samples, to decrease the chance of overfitting
+        #random.shuffle(dataset_input_matrix)
+        #input_matrix1 = dataset_input_matrix
+        
         # We perform the training based on the number of epochs specified
         for i in range(epochs):
-            # create random index
-            ri = np.random.randint(len(dataset_input_matrix))
-            # Pick random observation vector: pick a random observation vector of independent variables (x) from the dataset matrix
-            input_observation_vector = dataset_input_matrix[ri]
-
-            # reset weighted sum value at the beginning of every epoch to avoid incrementing the previous observations weighted-sums on top. 
-            weighted_sum = 0
             
-            # Loop through all the independent variables (x) in the observation
-            for x in range(len(input_observation_vector)):
-                # Weighted_sum: we take each independent variable in the entire observation, add weight to it then add it to the subtotal of weighted sum
-                weighted_sum += input_observation_vector[x] * weights[x]
-
-            # Add Bias: add bias to weighted sum
-            weighted_sum += bias
-           
-            # Activation: process weighted_sum through activation function
-            activation_func_output = self.chosen_activation_func(weighted_sum)    
+            #reset average accuracy with every epoch
+            self.train_average_accuracy = 0
             
-            # Prediction: Because this is a single layer neural network, so the activation output will be the same as the prediction
-            pred = activation_func_output
-
-            # Cost: the cost function to calculate the prediction error margin
-            cost = chosen_cost_func(pred, output_data_labels[ri])
-            # Also calculate the derivative of the cost function with respect to prediction
-            dCost_dPred = chosen_cost_func_derivation(pred, output_data_labels[ri])
-
-            # Derivative: bringing derivative from prediction output with respect to the activation function used for the weighted sum.
-            dPred_dWeightSum = chosen_activation_func_derivation(weighted_sum)
+            for ri in range(len(dataset_input_matrix)): 
+            
+                # reset weighted sum value at the beginning of every epoch to avoid incrementing the previous observations weighted-sums on top. 
+                weighted_sum = 0
                 
-            # Bias is just a number on its own added to the weighted sum, so its derivative is just 1
-            dWeightSum_dB = 1
-            
-            # The derivative of the Weighted Sum with respect to each weight is the input data point / independant variable it's multiplied by. 
-            # Therefore I simply assigned the input data array to another variable I called 'dWeightedSum_dWeights'
-            # to represent the array of the derivative of all the weights involved. I could've used the 'input_sample'
-            # array variable itself, but for the sake of readibility, I created a separate variable to represent the derivative of each of the weights.
-            dWeightedSum_dWeights = input_observation_vector
-            
-            # Derivative chaining rule: chaining all the derivative functions together (chaining rule)
-            # Loop through all the weights to workout the derivative of the cost with respect to each weight:
-            for dWeightedSum_dWeight in dWeightedSum_dWeights:
-                dCost_dWeight = dCost_dPred * dPred_dWeightSum * dWeightedSum_dWeight
-                dCost_dWeights.append(dCost_dWeight)
+                input_observation_vector = dataset_input_matrix[ri]
+                # Loop through all the independent variables (x) in the observation
+                for x in range(len(input_observation_vector)):
+                    # Weighted_sum: we take each independent variable in the entire observation, add weight to it then add it to the subtotal of weighted sum
+                    weighted_sum += input_observation_vector[x] * weights[x]
     
-            dCost_dB = dCost_dPred * dPred_dWeightSum * dWeightSum_dB
-
-            # Backpropagation: update the weights and bias according to the derivatives calculated above.
-            # In other word we update the parameters of the neural network to correct parameters and therefore 
-            # optimise the neural network prediction to be as accurate to the real output as possible
-            # We loop through each weight and update it with its derivative with respect to the cost error function value. 
-            for ind in range(len(weights)):
-                weights[ind] = weights[ind] - learning_rate * dCost_dWeights[ind]
-   
-            bias = bias - learning_rate * dCost_dB
-
-            # We want to track the cost value over the course of the epochs
-            # to see how well the neural network is performing.
-            # A gradual decrease in the value shows that the network
-            # is learning and improving its guesses. Otherwise if
-            # there's no decrease in the value then the networks is
-            # not improving / learning.
-            # We don't want to append the cost of every epoch to the costs 
-            # array, otherwise for a large number of epochs the array will
-            # contain so many values. Also our graph will have so many data
-            # points, it won't be readable. 
-            # So we will only add a `cost` value for every number of epochs, to the costs array.
-            # Since the number of epochs will always vary depending on the argument
-            # passed to the method, the appending of a cost value to the costs array
-            # takes place with the frequency of 1% of the total number of epochs
-            # to ensure only 100 data points (costs) are plotted (no matter how many epochs take place).
-            append_cost_freq = epochs * 0.01
-            if i % append_cost_freq == 0:
-                costs.append(cost)
+                # Add Bias: add bias to weighted sum
+                weighted_sum += bias
+               
+                # Activation: process weighted_sum through activation function
+                activation_func_output = self.chosen_activation_func(weighted_sum)    
+                
+                # Prediction: Because this is a single layer neural network, so the activation output will be the same as the prediction
+                pred = activation_func_output
+    
+                # Cost: the cost function to calculate the prediction error margin
+                cost = chosen_cost_func(pred, output_data_labels[ri])
+                # Also calculate the derivative of the cost function with respect to prediction
+                dCost_dPred = chosen_cost_func_derivation(pred, output_data_labels[ri])
+    
+                # Derivative: bringing derivative from prediction output with respect to the activation function used for the weighted sum.
+                dPred_dWeightSum = chosen_activation_func_derivation(weighted_sum)
+                    
+                # Bias is just a number on its own added to the weighted sum, so its derivative is just 1
+                dWeightSum_dB = 1
+                
+                # The derivative of the Weighted Sum with respect to each weight is the input data point / independant variable it's multiplied by. 
+                # Therefore I simply assigned the input data array to another variable I called 'dWeightedSum_dWeights'
+                # to represent the array of the derivative of all the weights involved. I could've used the 'input_sample'
+                # array variable itself, but for the sake of readibility, I created a separate variable to represent the derivative of each of the weights.
+                dWeightedSum_dWeights = input_observation_vector
+                
+                # Derivative chaining rule: chaining all the derivative functions together (chaining rule)
+                # Loop through all the weights to workout the derivative of the cost with respect to each weight:
+                for dWeightedSum_dWeight in dWeightedSum_dWeights:
+                    dCost_dWeight = dCost_dPred * dPred_dWeightSum * dWeightedSum_dWeight
+                    dCost_dWeights.append(dCost_dWeight)
         
-            # Compare prediction to target
-            error_margin = np.sqrt(np.square(pred - output_data_labels[ri]))
-            accuracy = (1 - error_margin) * 100
-            self.train_average_accuracy += accuracy
+                dCost_dB = dCost_dPred * dPred_dWeightSum * dWeightSum_dB
+    
+                # Backpropagation: update the weights and bias according to the derivatives calculated above.
+                # In other word we update the parameters of the neural network to correct parameters and therefore 
+                # optimise the neural network prediction to be as accurate to the real output as possible
+                # We loop through each weight and update it with its derivative with respect to the cost error function value. 
+                for ind in range(len(weights)):
+                    weights[ind] = weights[ind] - learning_rate * dCost_dWeights[ind]
+       
+                bias = bias - learning_rate * dCost_dB
             
-            # Evaluate whether guessed correctly or not based on classification binary problem 0 or 1 outcome. So if prediction is above 0.5 it guessed 1 and below 0.5 it guessed incorrectly. If it's dead on 0.5 it is incorrect for either guesses. Because it's no exactly a good guess for either 0 or 1. We need to set a good standard for the neural net model.
-            if (error_margin < 0.5) and (error_margin >= 0):
-                correct_pred += 1 
-            elif (error_margin >= 0.5) and (error_margin <= 1):
-                incorrect_pred += 1
-            else:
-                print("Exception error - 'margin error' for 'predict' method is out of range. Must be between 0 and 1, in training method", file=sys.stderr)
-                return
+                # Compare prediction to target
+                error_margin = np.sqrt(np.square(pred - output_data_labels[ri]))
+                accuracy = (1 - error_margin) * 100
+                self.train_average_accuracy += round(accuracy)
+                
+                # Evaluate whether guessed correctly or not based on classification binary problem 0 or 1 outcome. So if prediction is above 0.5 it guessed 1 and below 0.5 it guessed incorrectly. If it's dead on 0.5 it is incorrect for either guesses. Because it's no exactly a good guess for either 0 or 1. We need to set a good standard for the neural net model.
+                if (error_margin < 0.5) and (error_margin >= 0):
+                    correct_pred += 1 
+                elif (error_margin >= 0.5) and (error_margin <= 1):
+                    incorrect_pred += 1
+                else:
+                    print("Exception error - 'margin error' for 'predict' method is out of range. Must be between 0 and 1, in training method", file=sys.stderr)
+                    return
+                
+                costs.append(cost)
+                
+            # Calculate average accuracy from the predictions of all obervations in the training dataset
+            self.train_average_accuracy = round(self.train_average_accuracy / len(dataset_input_matrix), 1)
+            
+    
         # store the final optimised weights to the weights instance variable so it can be used in the predict method.
         self.weights = weights
         
         # store the final optimised bias to the weights instance variable so it can be used in the predict method.
         self.bias = bias
-                
-        # Calculate average accuracy from the predictions of all obervations in the training dataset
-        self.train_average_accuracy /= epochs
         
         # Print out results 
         print('Average Accuracy: {}'.format(self.train_average_accuracy))
         print('Correct predictions: {}, Incorrect Predictions: {}'.format(correct_pred, incorrect_pred))
-        plt.plot(costs)
+        # plot only 100 data points of equal distance apart no matter how many data points are in the costs array.
+        plt_costs = None
+        if len(costs) <=100:
+            plt_costs = costs
+        else:
+            freq = int(len(costs) / 100)
+            plt_costs = costs[::freq]
+        plt.plot(plt_costs)
+        plt.ylabel = 'costs'
+        plt.xlabel = 'training runs'
         plt.show()
 
         
@@ -304,6 +310,6 @@ X_train, y_train, X_test, y_test = data[:6, :-1], data[:6, -1], data[6:, :-1], d
 
 nn_model = NN_classification()
 
-nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 10000, learning_rate=0.2)
+nn_model.simple_1_layer_classification_NN(X_train, y_train, 2, 1000, learning_rate=0.2)
 
 nn_model.predict(X_test, y_test)
